@@ -117,6 +117,7 @@ export class CdkToolkit {
     const strict = !!options.strict;
     const contextLines = options.contextLines || 3;
     const stream = options.stream || process.stderr;
+    const quiet = options.quiet;
 
     let diffs = 0;
     if (options.templatePath !== undefined) {
@@ -131,7 +132,7 @@ export class CdkToolkit {
       const template = deserializeStructure(await fs.readFile(options.templatePath, { encoding: 'UTF-8' }));
       diffs = options.securityOnly
         ? numberFromBool(printSecurityDiff(template, stacks.firstStack, RequireApproval.Broadening))
-        : printStackDiff(template, stacks.firstStack, strict, contextLines, stream);
+        : printStackDiff(template, stacks.firstStack, strict, contextLines, quiet, stream);
     } else {
       // Compare N stacks against deployed templates
       for (const stack of stacks.stackArtifacts) {
@@ -139,7 +140,7 @@ export class CdkToolkit {
         const currentTemplate = await this.props.deployments.readCurrentTemplateWithNestedStacks(stack, options.compareAgainstProcessedTemplate);
         diffs += options.securityOnly
           ? numberFromBool(printSecurityDiff(currentTemplate, stack, RequireApproval.Broadening))
-          : printStackDiff(currentTemplate, stack, strict, contextLines, stream);
+          : printStackDiff(currentTemplate, stack, strict, contextLines, quiet, stream);
       }
     }
 
@@ -890,6 +891,13 @@ export interface DiffOptions {
    * @default false
    */
   compareAgainstProcessedTemplate?: boolean;
+
+  /*
+  * Run diff in quiet mode without printing the diff statuses
+  *
+  * @default false
+  */
+  quiet: boolean;
 }
 
 interface CfnDeployOptions {

@@ -19,6 +19,7 @@ export function printStackDiff(
   newTemplate: cxapi.CloudFormationStackArtifact,
   strict: boolean,
   context: number,
+  quiet: boolean,
   stream?: cfnDiff.FormatStream): number {
 
   let diff = cfnDiff.diffTemplate(oldTemplate, newTemplate.template);
@@ -49,7 +50,7 @@ export function printStackDiff(
       ...logicalIdMapFromTemplate(oldTemplate),
       ...buildLogicalToPathMap(newTemplate),
     }, context);
-  } else {
+  } else if (!quiet) {
     print(chalk.green('There were no differences'));
   }
   if (filteredChangesCount > 0) {
